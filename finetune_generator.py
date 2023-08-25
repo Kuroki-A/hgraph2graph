@@ -34,7 +34,8 @@ class Chemprop(object):
             for fname in files:
                 if fname.endswith('.pt'):
                     fname = os.path.join(root, fname)
-                    scaler, features_scaler = load_scalers(fname)
+                    scaler, features_scaler, atom_descriptor_scaler, bond_feature_scaler = load_scalers(fname)
+                    #scaler, features_scaler, atom_descriptor_scaler, bond_descriptor_scaler, atom_bond_scaler = load_scalers(fname)
                     self.scalers.append(scaler)
                     self.features_scalers.append(features_scaler)
                     model = load_checkpoint(fname)
@@ -149,7 +150,8 @@ if __name__ == "__main__":
                 loss.backward()
                 nn.utils.clip_grad_norm_(model.parameters(), args.clip_norm)
                 optimizer.step()
-                meters = meters + np.array([kl_div, loss.item(), wacc * 100, iacc * 100, tacc * 100, sacc * 100])
+                #meters = meters + np.array([kl_div, loss.item(), wacc * 100, iacc * 100, tacc * 100, sacc * 100])
+                meters = meters + np.array([kl_div, loss.cpu().item(), wacc.cpu() * 100, iacc.cpu() * 100, tacc.cpu() * 100, sacc.cpu() * 100])
 
             meters /= len(dataset)
             print("Beta: %.3f, KL: %.2f, loss: %.3f, Word: %.2f, %.2f, Topo: %.2f, Assm: %.2f, PNorm: %.2f, GNorm: %.2f" % (beta, meters[0], meters[1], meters[2], meters[3], meters[4], meters[5], param_norm(model), grad_norm(model)))
